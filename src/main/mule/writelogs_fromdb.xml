@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="12ce404a-47f1-4d5e-8257-e221d0efae7c" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5845d95c-e878-4df6-be4c-6078d5566bda" >
+		<db:my-sql-connection host="172.31.41.232" port="3306" user="root" />
+	</db:config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="12320325-a923-42ae-b2a5-f27ba3120b4d" >
+		<file:connection workingDir="D:\Balaji\Sample-files\Write\Production-DB-Logs\" />
+	</file:config>
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="e510b7b0-8170-48b9-ab95-573d4d5b67fe" >
+		<sftp:connection workingDir="/home/cegmuleuser/Developers/Balaji/writeLogs" host="10.10.135.56" username="cegmuleuser" password="Ce3U$er@5910"/>
+	</sftp:config>
+	<flow name="writelogs_fromdbFlow" doc:id="844c8939-d504-43ba-8d9c-b4fb531a53a2" >
+		<http:listener doc:name="Listener" doc:id="c616ba26-1779-460d-ba05-9aa053368d49" config-ref="HTTP_Listener_config" path="/logs"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e1e4d87d-f244-4efd-9cd4-830b8d1df0bc" message="Fetching-Logs-From-DBStarted&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;"/>
+		<db:select doc:name="Select-all the Logs From Db" doc:id="6ad4a7a6-f917-41e5-bfea-83917bdcde50" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="to xlsx" doc:id="b285d655-6e54-47fa-83ab-fc38a43d9cf9">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xlsx
+---
+{
+	AuditLogs: payload
+}
+
+/*[{
+		corelation_id: payload.corelation_id,
+		log_message: payload.log_message,
+		API_SUBSCRIBER: payload.API_SUBSCRIBER,
+		API_PUBLISHER: payload.API_PUBLISHER,
+		log_type: payload.log_type,
+		record_created_time: payload.record_created_time,
+		Api_Access_Time: payload.Api_Access_Time
+	}] */]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="Auditlogs" doc:name="Set Variable" doc:id="f8125618-87fe-4fdf-bbc1-bcdeff47a922" variableName="Auditlog"/>
+		<file:write doc:name="Write" doc:id="6838aec5-e42e-4063-9573-e9969ed85ce3" config-ref="File_Config" path="#[vars.Auditlog ++ '.xlsx']" createParentDirectories="false" />
+		<logger level="INFO" doc:name="Logger" doc:id="8fe1176e-623f-4147-baa9-e634cbe83d9d" message="Write Operation is done :::"/>
+	</flow>
+	<flow name="writelogs_fromdbFlow1" doc:id="6b7e3645-48be-489a-9c65-4c6a5de80229" >
+		<http:listener doc:name="Listener" doc:id="2a236d43-d185-4d1c-9675-5784133f667e" config-ref="HTTP_Listener_config" path="/sftpWriteLogs"/>
+		<logger level="INFO" doc:name="Logger" doc:id="8b4884e2-d3a7-4c7a-9765-7d5b980a4570" message="Fetching-Logs-From-DBStarted&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;" />
+		<db:select doc:name="Select-all the Logs From Db" doc:id="471c6dbe-795c-4951-922b-b43a3462fdb6" config-ref="Database_Config" >
+			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="json" doc:id="e5580436-eaf6-4c86-bc8a-d1f3047fe7c8">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-variable value="Auditlogs" doc:name="Audit-log" doc:id="8a5a8a37-96e9-46cd-b15a-e1dd2e356bfa" variableName="Auditlog" />
+		<sftp:write doc:name="Write-Logs-to-SFTP-Location" doc:id="4fd4d96d-1fc5-405f-bdd9-77f2d2501f30" config-ref="SFTP_Config" path='#[vars.Auditlog ++ ".json"]' />
+		<logger level="INFO" doc:name="Logger" doc:id="59032217-26a4-434e-b207-563788da4546" message="Write Operation is done :::" />
+	</flow>
+</mule>

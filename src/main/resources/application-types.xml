@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="Logs_Xlsx" format="excel">
+      <types:shape format="weave"><![CDATA[%dw 2.0
+
+type Logs_Xlsx = {|
+  Sheet1?: Array<{|    corelation_id: String,     log_message: String,     API_SUBSCRIBER: String,     API_PUBLISHER: String,     log_type: String,     record_created_time: String,     Api_Access_Time: String  |}>
+|}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#b285d655-6e54-47fa-83ab-fc38a43d9cf9">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Logs_Xlsx"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
