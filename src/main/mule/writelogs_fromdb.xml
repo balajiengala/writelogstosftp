@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		<db:select doc:name="Select-all the Logs From Db" doc:id="6ad4a7a6-f917-41e5-bfea-83917bdcde50" config-ref="Database_Config">
 			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="to xlsx" doc:id="b285d655-6e54-47fa-83ab-fc38a43d9cf9">
+		<ee:transform doc:name="message transformation  to xlsx" doc:id="b285d655-6e54-47fa-83ab-fc38a43d9cf9">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/xlsx
@@ -46,7 +46,7 @@ output application/xlsx
 	}] */]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<set-variable value="Auditlogs" doc:name="updated Set Variable" doc:id="f8125618-87fe-4fdf-bbc1-bcdeff47a922" variableName="Auditlog"/>
+		<set-variable value="Auditlogs" doc:name="Update Variable" doc:id="f8125618-87fe-4fdf-bbc1-bcdeff47a922" variableName="Auditlog"/>
 		<file:write doc:name="Write" doc:id="6838aec5-e42e-4063-9573-e9969ed85ce3" config-ref="File_Config" path="#[vars.Auditlog ++ '.xlsx']" createParentDirectories="false" />
 		<logger level="INFO" doc:name="end Logger" doc:id="8fe1176e-623f-4147-baa9-e634cbe83d9d" message="Write Operation is done :::"/>
 	</flow>
@@ -56,7 +56,7 @@ output application/xlsx
 		<db:select doc:name="Select-all the Logs From Db" doc:id="471c6dbe-795c-4951-922b-b43a3462fdb6" config-ref="Database_Config" >
 			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="json" doc:id="e5580436-eaf6-4c86-bc8a-d1f3047fe7c8">
+		<ee:transform doc:name="message transformation to json" doc:id="e5580436-eaf6-4c86-bc8a-d1f3047fe7c8">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -64,7 +64,7 @@ output application/json
 payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<set-variable value="Auditlogs" doc:name="Audit-log" doc:id="8a5a8a37-96e9-46cd-b15a-e1dd2e356bfa" variableName="Auditlog" />
+		<set-variable value="Auditlogs" doc:name="Update Audit-log" doc:id="8a5a8a37-96e9-46cd-b15a-e1dd2e356bfa" variableName="Auditlog" />
 		<sftp:write doc:name="Write-Logs-to-SFTP-Location" doc:id="4fd4d96d-1fc5-405f-bdd9-77f2d2501f30" config-ref="SFTP_Config" path='#[vars.Auditlog ++ ".json"]' />
 		<logger level="INFO" doc:name="end Logger" doc:id="59032217-26a4-434e-b207-563788da4546" message="Write Operation is done :::" />
 	</flow>
