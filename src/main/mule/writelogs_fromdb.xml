@@ -46,7 +46,7 @@ output application/xlsx
 	}] */]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<set-variable value="Auditlogs" doc:name="Set Variable" doc:id="f8125618-87fe-4fdf-bbc1-bcdeff47a922" variableName="Auditlog"/>
+		<set-variable value="Auditlogs" doc:name="updated Set Variable" doc:id="f8125618-87fe-4fdf-bbc1-bcdeff47a922" variableName="Auditlog"/>
 		<file:write doc:name="Write" doc:id="6838aec5-e42e-4063-9573-e9969ed85ce3" config-ref="File_Config" path="#[vars.Auditlog ++ '.xlsx']" createParentDirectories="false" />
 		<logger level="INFO" doc:name="end Logger" doc:id="8fe1176e-623f-4147-baa9-e634cbe83d9d" message="Write Operation is done :::"/>
 	</flow>
