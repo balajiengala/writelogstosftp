@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sft
 		<db:select doc:name="Select-all the Logs From Db" doc:id="6ad4a7a6-f917-41e5-bfea-83917bdcde50" config-ref="Database_Config">
 			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="to xlsx" doc:id="b285d655-6e54-47fa-83ab-fc38a43d9cf9">
+		<ee:transform doc:name="message transformation  to xlsx" doc:id="b285d655-6e54-47fa-83ab-fc38a43d9cf9">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/xlsx
@@ -56,7 +56,7 @@ output application/xlsx
 		<db:select doc:name="Select-all the Logs From Db" doc:id="471c6dbe-795c-4951-922b-b43a3462fdb6" config-ref="Database_Config" >
 			<db:sql ><![CDATA[select * from esb_schema.auditlog]]></db:sql>
 		</db:select>
-		<ee:transform doc:name="json" doc:id="e5580436-eaf6-4c86-bc8a-d1f3047fe7c8">
+		<ee:transform doc:name="message transformation to json" doc:id="e5580436-eaf6-4c86-bc8a-d1f3047fe7c8">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
